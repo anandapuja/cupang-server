@@ -1,11 +1,14 @@
-To install dependencies:
-```sh
-bun install
-```
+# Cupang Server
 
-To run:
-```sh
-bun run dev
-```
+This is Restful API of Cupang Commerce.
 
-open http://localhost:3000
+# Backend Tech Stack
+
+1. Typescript
+2. Bun
+3. Hono
+   1. Zod
+   2. JWT
+   3. Bycript
+4. Prisma ORM
+5. Postgresql
