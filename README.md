@@ -1,2 +1,11 @@
-# cupang-server
-This is server side of Cupang, e-commerce API that sell Cupang Fish.
+To install dependencies:
+```sh
+bun install
+```
+
+To run:
+```sh
+bun run dev
+```
+
+open http://localhost:3000
