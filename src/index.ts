@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import customerRoutes from "./routes/CustomerRoutes";
 import productRoutes from "./routes/ProductRoutes";
 import cartRoutes from "./routes/CartRoutes";
+import { cors } from "hono/cors";
 
 const app = new Hono();
 
