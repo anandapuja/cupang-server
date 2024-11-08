@@ -1,6 +1,6 @@
 import { Context } from "hono";
 
-class UserController {
+class ProductController {
   async register(c: Context) {
     return c.json({ message: "REGISTER" }, 200);
   }
@@ -10,6 +10,6 @@ class UserController {
   }
 }
 
-const userController = new UserController();
+const userController = new ProductController();
 
-export default userController;
+export default ProductController;

@@ -1,12 +1,16 @@
 import { Hono } from "hono";
-import UserRoutes from "./routes/UserRoutes";
+import customerRoutes from "./routes/CustomerRoutes";
+import productRoutes from "./routes/ProductRoutes";
+import cartRoutes from "./routes/CartRoutes";
 
-const app = new Hono({ strict: false });
+const app = new Hono();
 
 app.notFound((c) => {
   return c.json({ message: "Page Not Found" }, 404);
 });
 
-app.route("/api/user", UserRoutes);
+app.route("/api/customer", customerRoutes);
+app.route("/api/product", productRoutes);
+app.route("/api/cart", cartRoutes);
 
 export default app;
