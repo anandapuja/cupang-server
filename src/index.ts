@@ -1,9 +1,12 @@
-import { Hono } from 'hono'
+import { Hono } from "hono";
+import UserRoutes from "./routes/UserRoutes";
 
-const app = new Hono()
+const app = new Hono({ strict: false });
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+app.notFound((c) => {
+  return c.json({ message: "Page Not Found" }, 404);
+});
 
-export default app
+app.route("/api/user", UserRoutes);
+
+export default app;
