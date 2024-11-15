@@ -36,14 +36,14 @@ model Customer {
 model Product {
   id String @id @default(uuid())
 
-  slug String @db.VarChar(255) @unique
   name String @db.VarChar(255) @unique
+  slug String @db.VarChar(255) @unique
   price Int @default(0)
   description String?
   stock Int @default(0)
   sold Int @default(0)
 
-  images ProductImage[]
+  images Image[]
   carts CartItem[]
 
   createdAt DateTime @default(now())
@@ -52,15 +52,18 @@ model Product {
   @@map("products")
 }
 
-model ProductImage {
+model Image {
 
   id String @id @default(uuid())
+  imageUrl String @map("image_url")
 
   product Product @relation(fields: [productId], references: [id])
-  productId String
+  productId String @map("product_id")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("images")
 }
 
 model Cart {
@@ -71,7 +74,7 @@ model Cart {
   cartStatus CartStatus @default(UNPAID)
 
   customer Customer @relation(fields: [customerId], references: [id])
-  customerId String @map("user_id")
+  customerId String @map("customer_id")
 
   products CartItem[]
 
@@ -82,7 +85,6 @@ model Cart {
 }
 
 model CartItem {
-
   quantity Int @default(1)
   price Int
   subTotalPrice Int @map("sub_total_price")
@@ -94,5 +96,6 @@ model CartItem {
   cartId String @map("cart_id")
 
   @@id([productId, cartId])
+  @@map("carts_items")
 
 }
