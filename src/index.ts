@@ -6,7 +6,6 @@ import products from "./services/products";
 import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 import { logger } from "hono/logger";
-import { bearerAuth } from "hono/bearer-auth";
 
 const app = new Hono();
 
@@ -22,8 +21,6 @@ app.notFound((c) => {
 
 // PRODUCTS ROUTES
 app.route("/api/products", products);
-
-// app.use("/api/*", bearerAuth({ token }));
 
 // CART ROUTES
 app.route("/api/cart/check-out", checkOut);

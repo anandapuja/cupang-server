@@ -12,7 +12,7 @@ app.post("/", async (c) => {
         username: customer.username,
       },
     });
-    // console.log(isCustom÷÷erExist);
+
     if (!isCustomerExist)
       return c.json(
         {
@@ -20,6 +20,7 @@ app.post("/", async (c) => {
         },
         400
       );
+
     const isCustomerPasswordMatch = await Bun.password.verify(
       customer.password,
       isCustomerExist.password
@@ -32,6 +33,7 @@ app.post("/", async (c) => {
       };
 
       const token = await signToken(c, payload);
+
       return c.json(
         {
           message: "USER LOGGED IN",

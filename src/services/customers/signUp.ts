@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { signToken } from "../../utils/jwt";
 import { prisma } from "../../utils/prisma";
 import { Customer } from "../../utils/types";
-import { CustomerSchema } from "../../utils/zodSchema";
 
 const app = new Hono();
 
@@ -10,9 +9,8 @@ app.post("/", async (c) => {
   try {
     const data: Customer = await c.req.json();
 
-    // const CustomerSchema =
+    const password: string = await Bun.password.hash(data.password);
 
-    const password = await Bun.password.hash(data.password);
     const customer = await prisma.customer.create({
       data: {
         username: data.username,
@@ -41,7 +39,6 @@ app.post("/", async (c) => {
       201
     );
   } catch (error) {
-    console.log(error);
     return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
   }
 });

@@ -3,12 +3,14 @@ import { prisma } from "../../utils/prisma";
 
 const cart = new Hono();
 
-cart.get("/", async (c) => {
+cart.get("/:id", async (c) => {
   try {
+    const customerId: string = await c.req.param("id");
+
     const cart = await prisma.cart.findFirst({
       where: {
         cartStatus: "UNPAID",
-        // customerId: "HARDCODE DULU GAES",
+        customerId: customerId,
       },
       include: {
         products: true,

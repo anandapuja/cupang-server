@@ -3,12 +3,27 @@ import { prisma } from "../../utils/prisma";
 
 const app = new Hono();
 
-app.get("/", async (c) => {
+app.get("/:id", async (c) => {
   try {
-    const customers = await prisma.customer.findMany();
-    return c.json({
-      data: customers,
+    const customerId: string = await c.req.param("id");
+    const customer = await prisma.customer.findUnique({
+      where: {
+        id: customerId,
+      },
+      select: {
+        username: true,
+        email: true,
+        cart: true,
+      },
     });
+
+    return c.json(
+      {
+        message: "SUCCESS GET DATA CUSTOMER BY ID",
+        data: customer,
+      },
+      200
+    );
   } catch (error) {
     return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
   }

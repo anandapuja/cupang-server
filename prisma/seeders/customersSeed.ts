@@ -1,11 +1,11 @@
-export type Customer = {
+export interface Customer {
   username: string;
   email: string;
   password: string;
-};
+}
 
 export const customers: Customer = {
   username: "@anandapuja",
   email: "anandapuja@anandapuja.com",
-  password: "123456",
+  password: "12345",
 };

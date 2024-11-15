@@ -19,10 +19,13 @@ product.get("/", async (c) => {
         },
       },
     });
-    return c.json({ message: "SUCCESS", data: products });
+    return c.json(
+      { message: "SUCCESS GET DATA PRODUCTS", data: products },
+      200
+    );
   } catch (error) {
     console.log(error);
-    return c.json({ message: "ERROR" });
+    return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
   }
 });
 
@@ -44,10 +47,12 @@ product.get("/:id", async (c) => {
         },
       },
     });
-    return c.json({ message: "SUCCESS", data: product });
+    return c.json(
+      { message: "SUCCESS GET DATA PRODUCT BY ID", data: product },
+      200
+    );
   } catch (error) {
-    console.log(error);
-    return c.json({ message: "ERROR" });
+    return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
   }
 });
 
