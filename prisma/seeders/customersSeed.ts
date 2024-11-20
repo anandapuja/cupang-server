@@ -7,5 +7,6 @@ export interface Customer {
 export const customers: Customer = {
   username: "@anandapuja",
   email: "anandapuja@anandapuja.com",
-  password: "12345",
+  password:
+    "$argon2i$v=19$m=16,t=2,p=1$YjdYalNhTVp1QVFZblpxbw$gL+T6uUc7DaYOJhp17Ijew",
 };

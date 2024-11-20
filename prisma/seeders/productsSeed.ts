@@ -6,9 +6,9 @@ export type Product = {
   stock: number;
   sold: number;
   images?: { imageUrl: string }[];
-}[];
+};
 
-export const products: Product = [
+export const products: Product[] = [
   {
     name: "Plakat",
     slug: "plakat",

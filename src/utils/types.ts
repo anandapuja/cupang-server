@@ -3,3 +3,12 @@ export interface Customer {
   email: string;
   password: string;
 }
+
+export type ProductNewArrival = {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  stock: number;
+  image: string;
+};

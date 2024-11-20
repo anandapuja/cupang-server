@@ -40,6 +40,7 @@ cart.patch("/:id", async (c) => {
           },
           data: {
             stock: product.product.stock - product.quantity,
+            sold: product.product.sold + product.quantity,
           },
         });
       });

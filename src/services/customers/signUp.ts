@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { signToken } from "../../utils/jwt";
 import { prisma } from "../../utils/prisma";
-import { Customer } from "../../utils/types";
+// import { Customer } from "../../utils/Types";
 
 const app = new Hono();
 
 app.post("/", async (c) => {
   try {
-    const data: Customer = await c.req.json();
+    const data = await c.req.json();
 
     const password: string = await Bun.password.hash(data.password);
 

@@ -5,7 +5,7 @@ const cart = new Hono();
 
 cart.get("/:id", async (c) => {
   try {
-    const customerId: string = await c.req.param("id");
+    const customerId = c.req.param("id");
 
     const cart = await prisma.cart.findFirst({
       where: {
@@ -13,11 +13,49 @@ cart.get("/:id", async (c) => {
         customerId: customerId,
       },
       include: {
-        products: true,
+        products: {
+          include: {
+            product: {
+              select: {
+                name: true,
+                images: {
+                  take: 1,
+                },
+              },
+            },
+          },
+        },
       },
     });
 
-    return c.json({ message: "SUCCESS GET CART", data: cart }, 200);
+    const cartItem: {
+      name: string;
+      price: number;
+      quantity: number;
+      total: number;
+      image: string;
+    }[] = [];
+
+    cart?.products.map((cart) => {
+      cartItem.push({
+        name: cart.product.name,
+        price: cart.price,
+        quantity: cart.quantity,
+        total: cart.subTotalPrice,
+        image:
+          cart.product.images[0]?.imageUrl ||
+          "https://down-id.img.susercontent.com/file/id-11134207-7qul2-lhiq3sxvgoa8ec@resize_w900_nl.webp",
+      });
+    });
+
+    return c.json(
+      {
+        message: "SUCCESS GET CART",
+        data: cartItem,
+        totalPrice: cart?.totalPrice,
+      },
+      200
+    );
   } catch (error) {
     return c.json(
       {
@@ -32,7 +70,9 @@ cart.post("/", async (c) => {
   try {
     const { slug, quantity, customerId } = await c.req.json();
 
-    // check if product is exist in database
+    // const customerId = "9cfc2d13-9c06-4f31-9f30-9b486d4eb02c";
+
+    // IS PRODUCT EXIST?
 
     const product = await prisma.product.findUnique({
       where: {
@@ -40,19 +80,20 @@ cart.post("/", async (c) => {
       },
     });
 
-    // return product not found if product does not exist in database
+    // IF PRODUCT NOT EXIST RETURN 404
 
     if (!product) return c.json({ message: "PRODUCT NOT FOUND" }, 404);
 
-    // check if cart is exist in database
+    // IS UNPAID CUSTOMER CART EXIST?
 
     const cart = await prisma.cart.findFirst({
       where: {
         cartStatus: "UNPAID",
+        customerId,
       },
     });
 
-    // CREATE CART & CART ITEM IF UNPAID CART IS DOES NOT EXIST
+    // IF CUSTOMER CART DOEST NOT EXIST : CREATE CART & CREATE CART ITEM
 
     if (!cart) {
       // create cart and cart item because cart does not exist in database
@@ -81,9 +122,8 @@ cart.post("/", async (c) => {
       return c.json({ message: "SUCCESS CREATE CART", data: createCart }, 201);
     }
 
-    // CREATE CART ITEM & UPDATE CART IF UNPAID CART IS EXIST
+    // IF CUSTOMER CART EXIST, IS PRODUCT IS IN CART ITEM?
 
-    // Check if any relation between cart and product in cart item
     const cartItem = await prisma.cartItem.findFirst({
       where: {
         productId: product.id,
@@ -91,7 +131,7 @@ cart.post("/", async (c) => {
       },
     });
 
-    // CREATE CART ITEM & UPDATE CART
+    // IF PRODUCT DOES NOT EXIST IN CART ITEM, SO CREATE CART ITEM
 
     if (!cartItem) {
       // create cart item and update cart because cart item is does not exist in database
@@ -125,6 +165,8 @@ cart.post("/", async (c) => {
       });
       return c.json({ message: "SUCCESS UPDATE CART", data: newCart }, 200);
     } else {
+      // IF PRODUCT EXIST IN CART ITEM, SO UPDATE CART AND CART ITEM
+
       // update cart and cart item because cart item is exist in database
       const cartQuantity = cart.quantity + quantity;
       const cartItemQuantity = cartItem.quantity + quantity;

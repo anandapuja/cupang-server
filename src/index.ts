@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import customer, { signIn, signUp } from "./services/customers";
+import search from "./services/products/search";
 import cart from "./services/carts";
 import checkOut from "./services/carts/checkOut";
 import products from "./services/products";
@@ -20,6 +21,7 @@ app.notFound((c) => {
 });
 
 // PRODUCTS ROUTES
+app.route("/api/products/search", search);
 app.route("/api/products", products);
 
 // CART ROUTES

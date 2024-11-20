@@ -1,11 +1,12 @@
 import { Hono } from "hono";
 import { prisma } from "../../utils/prisma";
+import { getCookie } from "hono/cookie";
 
 const app = new Hono();
 
 app.get("/:id", async (c) => {
   try {
-    const customerId: string = await c.req.param("id");
+    const customerId = c.req.param("id");
     const customer = await prisma.customer.findUnique({
       where: {
         id: customerId,

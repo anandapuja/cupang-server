@@ -4,7 +4,7 @@ import { Product } from "./seeders/productsSeed";
 import { Customer } from "./seeders/customersSeed";
 import { prisma } from "../src/utils/prisma";
 
-async function seedProduct(products: Product) {
+async function seedProduct(products: Product[]) {
   for (const product of products) {
     const productImages = product.images;
     const upsertProduct = await prisma.product.upsert({

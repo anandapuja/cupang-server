@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { signToken } from "../../utils/jwt";
 import { prisma } from "../../utils/prisma";
-
+import { setCookie } from "hono/cookie";
 const app = new Hono();
 
 app.post("/", async (c) => {
@@ -10,6 +10,13 @@ app.post("/", async (c) => {
     const isCustomerExist = await prisma.customer.findUnique({
       where: {
         username: customer.username,
+      },
+      include: {
+        cart: {
+          where: {
+            cartStatus: "UNPAID",
+          },
+        },
       },
     });
 
