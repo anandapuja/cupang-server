@@ -1,6 +1,7 @@
 {
   "name": "cupang-server",
   "scripts": {
+    "postinstall": "bunx prisma generate",
     "dev": "bun run --hot src/index.ts",
     "start": "bun run src/index.ts"
   },
