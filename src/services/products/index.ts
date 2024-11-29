@@ -1,5 +1,8 @@
 import { Hono } from "hono";
 import { prisma } from "../../utils/prisma";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { encodeBase64 } from "hono/utils/encode";
+import { v2 as cloudinary } from "cloudinary";
 // import { getCookie } from "hono/cookie";
 // import { ProductNewArrival } from "../../utils/Types";
 
@@ -122,6 +125,56 @@ product.get("/:slug", async (c) => {
       200
     );
   } catch (error) {
+    return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
+  }
+});
+
+product.post("/", async (c) => {
+  try {
+    const body = await c.req.parseBody();
+
+    const image = body.image as File;
+    const byteArrayBuffer = await image.arrayBuffer();
+    const base64 = encodeBase64(byteArrayBuffer);
+    const uploadToCloudinary = await cloudinary.uploader.upload(
+      `data:image/png;base64,${base64}`
+    );
+
+    // console.log(uploadToCloudinary);
+    // const { name, price, stock, description, images }: Product =
+    //   await c.req.json();
+
+    // const data = {
+    //   name,
+    //   slug: name.split(" ").join("-").toLowerCase(),
+    //   price,
+    //   stock: stock || 0,
+    //   description,
+    //   sold: 0,
+    //   images: {
+    //     create: images?.map((image) => {
+    //       return { imageUrl: image };
+    //     }),
+    //   },
+    // };
+
+    // const product = await prisma.product.create({ data: data });
+    return c.json({ message: "SUCCESS CREATE PRODUCT" }, 201);
+  } catch (errors) {
+    console.log(errors);
+    if (errors instanceof PrismaClientKnownRequestError) {
+      switch (errors.code) {
+        case "P2002":
+          return c.json(
+            {
+              message: "Cupang name is already exist, please try another name",
+            },
+            400
+          );
+        default:
+          return c.json({ message: "Bad Request" }, 400);
+      }
+    }
     return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
   }
 });

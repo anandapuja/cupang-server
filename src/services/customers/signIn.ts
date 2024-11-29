@@ -1,20 +1,27 @@
 import { Hono } from "hono";
 import { signToken } from "../../utils/jwt";
 import { prisma } from "../../utils/prisma";
-import { setCookie } from "hono/cookie";
+import { CustomerLoginSchema } from "../../utils/zodSchema";
+import { z } from "zod";
 const app = new Hono();
 
 app.post("/", async (c) => {
-  const customer = await c.req.json();
   try {
+    const { username, password } = await c.req.json();
+
+    CustomerLoginSchema.parse({ username, password });
+
     const isCustomerExist = await prisma.customer.findUnique({
       where: {
-        username: customer.username,
+        username: username,
       },
       include: {
         cart: {
           where: {
             cartStatus: "UNPAID",
+          },
+          include: {
+            products: true,
           },
         },
       },
@@ -23,13 +30,13 @@ app.post("/", async (c) => {
     if (!isCustomerExist)
       return c.json(
         {
-          message: `CUSTOMER WITH USERNAME ${customer.username} DOES NOT EXIST`,
+          message: `Customer with username : ${username} does not exist, please register first`,
         },
         400
       );
 
     const isCustomerPasswordMatch = await Bun.password.verify(
-      customer.password,
+      password,
       isCustomerExist.password
     );
 
@@ -37,6 +44,7 @@ app.post("/", async (c) => {
       const payload = {
         username: isCustomerExist.username,
         email: isCustomerExist.email,
+        id: isCustomerExist.id,
       };
 
       const token = await signToken(c, payload);
@@ -49,7 +57,14 @@ app.post("/", async (c) => {
         200
       );
     }
-  } catch (error) {
+  } catch (errors) {
+    if (errors instanceof z.ZodError) {
+      const errorMessage = errors.issues.map((error) => {
+        return error.message;
+      });
+      return c.json({ message: errorMessage.join(", ") }, 400);
+    }
+
     return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
   }
 });

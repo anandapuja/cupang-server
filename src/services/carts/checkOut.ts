@@ -33,6 +33,8 @@ cart.patch("/:id", async (c) => {
         },
       });
 
+      // TODO : UPDATE MANY
+
       cart?.products.forEach(async function (product) {
         await prisma.product.update({
           where: {

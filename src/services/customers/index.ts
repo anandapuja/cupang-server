@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import { prisma } from "../../utils/prisma";
 import { getCookie } from "hono/cookie";
+import AuthenticationToken from "../../middleware/Authentication";
 
 const app = new Hono();
 
-app.get("/:id", async (c) => {
+app.get("/:id", AuthenticationToken, async (c) => {
   try {
     const customerId = c.req.param("id");
     const customer = await prisma.customer.findUnique({
@@ -25,7 +26,7 @@ app.get("/:id", async (c) => {
       },
       200
     );
-  } catch (error) {
+  } catch (errors) {
     return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
   }
 });

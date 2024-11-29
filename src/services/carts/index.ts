@@ -1,11 +1,16 @@
 import { Hono } from "hono";
 import { prisma } from "../../utils/prisma";
+import { decodeToken, verifyToken } from "../../utils/jwt";
 
 const cart = new Hono();
 
-cart.get("/:id", async (c) => {
+cart.get("/", async (c) => {
+  const userToken = c.req.header("Authorization") || "";
+  const customerToken: string = userToken.split(" ")[1];
+  const { payload } = decodeToken(customerToken);
+
   try {
-    const customerId = c.req.param("id");
+    const customerId: {} = payload.id || "";
 
     const cart = await prisma.cart.findFirst({
       where: {
@@ -17,6 +22,7 @@ cart.get("/:id", async (c) => {
           include: {
             product: {
               select: {
+                id: true,
                 name: true,
                 images: {
                   take: 1,
@@ -28,7 +34,10 @@ cart.get("/:id", async (c) => {
       },
     });
 
+    console.log("CART", cart);
+
     const cartItem: {
+      id: string;
       name: string;
       price: number;
       quantity: number;
@@ -38,6 +47,7 @@ cart.get("/:id", async (c) => {
 
     cart?.products.map((cart) => {
       cartItem.push({
+        id: cart.product.id,
         name: cart.product.name,
         price: cart.price,
         quantity: cart.quantity,
@@ -69,8 +79,6 @@ cart.get("/:id", async (c) => {
 cart.post("/", async (c) => {
   try {
     const { slug, quantity, customerId } = await c.req.json();
-
-    // const customerId = "9cfc2d13-9c06-4f31-9f30-9b486d4eb02c";
 
     // IS PRODUCT EXIST?
 
@@ -206,6 +214,37 @@ cart.post("/", async (c) => {
     }
   } catch (error) {
     return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
+  }
+});
+
+cart.delete("/:id", async (c) => {
+  try {
+    const cartId = c.req.param("id");
+    const { productId } = await c.req.json();
+
+    const deleteCartItem = await prisma.cartItem.delete({
+      where: {
+        productId_cartId: {
+          productId: productId,
+          cartId: cartId,
+        },
+      },
+    });
+
+    console.log("DELETE ITEM", deleteCartItem);
+
+    return c.json(
+      { message: "SUCCESS DELETE CART ITEM", data: deleteCartItem },
+      200
+    );
+  } catch (errors) {
+    console.log(errors);
+    return c.json(
+      {
+        message: "INTERNAL SERVER ERROR",
+      },
+      500
+    );
   }
 });
 
