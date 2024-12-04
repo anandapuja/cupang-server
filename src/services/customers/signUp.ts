@@ -33,6 +33,15 @@ app.post("/", async (c) => {
         id: true,
         username: true,
         email: true,
+        cart: {
+          include: {
+            products: {
+              select: {
+                productId: true,
+              },
+            },
+          },
+        },
       },
     });
 

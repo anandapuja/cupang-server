@@ -21,11 +21,17 @@ app.post("/", async (c) => {
             cartStatus: "UNPAID",
           },
           include: {
-            products: true,
+            products: {
+              select: {
+                productId: true,
+              },
+            },
           },
         },
       },
     });
+
+    // console.log(isCustomerExist);
 
     if (!isCustomerExist)
       return c.json(
@@ -49,10 +55,20 @@ app.post("/", async (c) => {
 
       const token = await signToken(c, payload);
 
+      const cartItem = isCustomerExist?.cart[0]?.products;
+
+      const customerDataReturn = {
+        id: isCustomerExist?.id,
+        username: isCustomerExist?.username,
+        email: isCustomerExist?.email,
+        cartId: isCustomerExist?.cart[0]["id"],
+        cartItem: cartItem,
+      };
+
       return c.json(
         {
           message: "USER LOGGED IN",
-          data: { customer: isCustomerExist, token: token },
+          data: { customer: customerDataReturn, token: token },
         },
         200
       );
@@ -64,7 +80,7 @@ app.post("/", async (c) => {
       });
       return c.json({ message: errorMessage.join(", ") }, 400);
     }
-
+    console.log(errors);
     return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
   }
 });

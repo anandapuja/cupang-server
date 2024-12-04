@@ -10,9 +10,11 @@ authentication.get("/", async (c) => {
 
     const { id } = await verifyToken(c, customerToken.split(" ")[1]);
 
+    const userId = id as string;
+
     const customer = await prisma.customer.findUnique({
       where: {
-        id: id,
+        id: userId,
       },
       include: {
         cart: {
@@ -20,25 +22,30 @@ authentication.get("/", async (c) => {
             cartStatus: "UNPAID",
           },
           include: {
-            products: true,
+            products: {
+              select: {
+                productId: true,
+              },
+            },
           },
         },
       },
     });
 
-    const cart =
-      customer?.cart.length === 0 ? 0 : customer?.cart[0].products.length;
+    const cartItem = customer?.cart[0]?.products;
 
     const customerDataReturn = {
       id: customer?.id,
       username: customer?.username,
       email: customer?.email,
-      cartItem: cart,
+      cartItem: cartItem,
     };
 
-    console.log(customerDataReturn);
+    console.log("CUSTOMER", customer);
+
     return c.json({ data: customerDataReturn }, 200);
   } catch (errors) {
+    console.log("CUSTOMER", errors);
     return c.json(
       {
         data: {

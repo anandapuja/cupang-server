@@ -34,8 +34,6 @@ cart.get("/", async (c) => {
       },
     });
 
-    console.log("CART", cart);
-
     const cartItem: {
       id: string;
       name: string;
@@ -222,6 +220,17 @@ cart.delete("/:id", async (c) => {
     const cartId = c.req.param("id");
     const { productId } = await c.req.json();
 
+    const cartItemWilDelete = await prisma.cartItem.findUnique({
+      where: {
+        productId_cartId: {
+          productId: productId,
+          cartId: cartId,
+        },
+      },
+    });
+
+    console.log(cartItemWilDelete);
+
     const deleteCartItem = await prisma.cartItem.delete({
       where: {
         productId_cartId: {
@@ -231,14 +240,11 @@ cart.delete("/:id", async (c) => {
       },
     });
 
-    console.log("DELETE ITEM", deleteCartItem);
-
     return c.json(
       { message: "SUCCESS DELETE CART ITEM", data: deleteCartItem },
       200
     );
   } catch (errors) {
-    console.log(errors);
     return c.json(
       {
         message: "INTERNAL SERVER ERROR",
