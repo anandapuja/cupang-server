@@ -7,11 +7,16 @@ const AuthorizationCustomer = createMiddleware(
   async (c: Context, next: Next) => {
     try {
       const customerToken = c.req.header("Authorization") || "";
-      const customer = await verifyToken(c, customerToken.split(" ")[1]);
+      //   const customer = await verifyToken(c, customerToken.split(" ")[1]);
+
+      const { id } = await verifyToken(c, customerToken.split(" ")[1]);
+
+      const userId = id as string;
 
       await prisma.customer.findUnique({
         where: {
-          id: customer.id,
+          //   id: customer.id,
+          id: userId,
         },
         select: {
           id: true,

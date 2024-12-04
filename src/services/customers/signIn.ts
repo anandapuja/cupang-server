@@ -31,7 +31,7 @@ app.post("/", async (c) => {
       },
     });
 
-    // console.log(isCustomerExist);
+    console.log(isCustomerExist);
 
     if (!isCustomerExist)
       return c.json(
@@ -61,7 +61,8 @@ app.post("/", async (c) => {
         id: isCustomerExist?.id,
         username: isCustomerExist?.username,
         email: isCustomerExist?.email,
-        cartId: isCustomerExist?.cart[0]["id"],
+        cartId:
+          (isCustomerExist?.cart[0] && isCustomerExist?.cart[0]["id"]) || [],
         cartItem: cartItem,
       };
 
